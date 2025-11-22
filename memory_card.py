@@ -6,8 +6,12 @@ app = QApplication([])
 main_win = QWidget()
 main_win.setWindowTitle('memory card')
 main_win.resize(500, 300)
-main_win.total = 0
-main_win.score = 0
+statistic = QWidget()
+statistic.resize(400, 200)
+all_score = 0
+user_score = 0
+quest_list_num = -1
+statistic.hide()
 
 class Question():
     def __init__(self, question, right_answer, wrong1, wrong2, wrong3):
@@ -57,23 +61,26 @@ def show_correct(res):
 
 
 def chech_answer():
+    global user_score
     if answers[0].isChecked():
         show_correct('Правильно!')
-        main_win.score += 1
+        user_score += 1
+        user_answer.setText(str(user_score))
     else:         
         show_correct('Неверно!')
-    print('Статистика')
-    print('-Всего вопросов:',main_win.total)
-    print('-Правильных ответов:',main_win.score)
-    print('Рейтинг:', (main_win.score / main_win.total * 100))
 
-def next_question(): 
-    main_win.total += 1
-    cur_question = randint(0, len(question_list)-1)     
-    ask(question_list[cur_question])
-    print('Статистика')
-    print('-Всего вопросов:', main_win.total)
-    print('-Правильных ответов:', main_win.score)
+def next_question():
+    global all_score
+    all_score += 1    
+    global quest_list_num
+    quest_list_num += 1   
+    if quest_list_num == len(question_list):
+        all_question.setText(str(all_score-1))
+        user_percent.setText(str(user_score/(all_score-1)*100))
+        main_win.hide()
+        statistic.show()
+    else:
+        ask(question_list[quest_list_num])
 
 
 main_layout = QVBoxLayout()
@@ -81,8 +88,22 @@ layouth1 = QHBoxLayout()
 layouth2 = QHBoxLayout()
 layouth3 = QHBoxLayout()
 
+main_stats_layout = QHBoxLayout()
+stats_layout_V1 = QVBoxLayout()
+stats_layout_V2 = QVBoxLayout()
+
 question = QLabel('Какой национальности не существует?')
 button = QPushButton('Ответить')
+
+#Виджеты статистики
+indicator = QLabel('Показатель')
+value = QLabel('Значение')
+all_quest_text = QLabel('Макс кол-во баллов')
+all_question = QLabel('0')
+user_quest_text = QLabel('Кол-во баллов')
+user_answer = QLabel('0')
+percent = QLabel('Процент')
+user_percent = QLabel('0')
 
 question_group = QGroupBox('Варианты ответов')
 answer1 = QRadioButton('Энцы')
@@ -133,6 +154,20 @@ main_layout.addLayout(layouth3, stretch=1)
 main_layout.addStretch(1)
 main_layout.setSpacing(5)
 main_win.setLayout(main_layout)
+
+
+#Расположение виджетов на лаяуты статистики
+stats_layout_V1.addWidget(indicator)
+stats_layout_V1.addWidget(all_quest_text)
+stats_layout_V1.addWidget(user_quest_text)
+stats_layout_V1.addWidget(percent)
+stats_layout_V2.addWidget(value,alignment=Qt.AlignCenter)
+stats_layout_V2.addWidget(all_question,alignment=Qt.AlignCenter)
+stats_layout_V2.addWidget(user_answer,alignment=Qt.AlignCenter)
+stats_layout_V2.addWidget(user_percent,alignment=Qt.AlignCenter)
+main_stats_layout.addLayout(stats_layout_V1)
+main_stats_layout.addLayout(stats_layout_V2)
+statistic.setLayout(main_stats_layout)
 
 
 q1 = Question('Выбери перевод слова переменная','variable', 'variation', 'changing', 'variant')
