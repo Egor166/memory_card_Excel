@@ -1,6 +1,9 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QPushButton, QRadioButton, QVBoxLayout, QHBoxLayout, QGroupBox, QButtonGroup
 from random import *
+import pandas as pd
+
+excel = pd.read_excel('memory_card.xlsx')
 
 app = QApplication([])
 main_win = QWidget()
@@ -76,7 +79,7 @@ def next_question():
     quest_list_num += 1   
     if quest_list_num == len(question_list):
         all_question.setText(str(all_score-1))
-        user_percent.setText(str(user_score/(all_score-1)*100))
+        user_percent.setText(str(int(user_score/(all_score-1)*100)))
         main_win.hide()
         statistic.show()
     else:
@@ -170,17 +173,35 @@ main_stats_layout.addLayout(stats_layout_V2)
 statistic.setLayout(main_stats_layout)
 
 
-q1 = Question('Выбери перевод слова переменная','variable', 'variation', 'changing', 'variant')
-q2 = Question('Государственный язык бразилии','Португальский','Испанский','Английский','Немецкий')
-q3 = Question('Какая страна считается эталоном нейтралитета','Швейцария','Россия','Мексика','Япония')
-q4 = Question('Самый сложный язык програмированния','Malbolge','C++','Python','LISP')
+#!q1 = Question('Выбери перевод слова переменная','variable', 'variation', 'changing', 'variant')
+#!q2 = Question('Государственный язык бразилии','Португальский','Испанский','Английский','Немецкий')
+#!q3 = Question('Какая страна считается эталоном нейтралитета','Швейцария','Россия','Мексика','Япония')
+#!q4 = Question('Самый сложный язык програмированния','Malbolge','C++','Python','LISP')
 question_list = []
-question_list.append(q1)
-question_list.append(q2)
-question_list.append(q3)
-question_list.append(q4)
+#!question_list.append(q1)
+#!question_list.append(q2)
+#!question_list.append(q3)
+#!question_list.append(q4)
 #question_list.append(q5)
 #question_list.append(q6)
+
+excel_count = []
+question_count = excel['Вопросы'].count()
+right_answer_count = excel['Правильный ответ'].count()
+wrong1_count = excel['1 Неправильный ответ'].count()
+wrong2_count = excel['2 Неправильный ответ'].count()
+wrong3_count = excel['3 Неправильный ответ'].count()
+excel_count.append(question_count)
+excel_count.append(right_answer_count)
+excel_count.append(wrong2_count)
+excel_count.append(wrong2_count)
+excel_count.append(wrong3_count)
+excel_count.sort()
+if excel_count[0] != 0:
+    for i in range(excel_count[0]):
+        #name = df.at[i, 'Вопросы']
+        q = Question(str(excel.at[i, 'Вопросы']),str(excel.at[i, 'Правильный ответ']),str(excel.at[i, '1 Неправильный ответ']),str(excel.at[i, '2 Неправильный ответ']),str(excel.at[i, '3 Неправильный ответ']))
+        question_list.append(q)
 
 button.clicked.connect(start_test)
 main_win.score = 0
