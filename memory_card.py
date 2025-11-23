@@ -9,12 +9,17 @@ app = QApplication([])
 main_win = QWidget()
 main_win.setWindowTitle('memory card')
 main_win.resize(500, 300)
+
 statistic = QWidget()
 statistic.resize(400, 200)
 all_score = 0
 user_score = 0
 quest_list_num = -1
 statistic.hide()
+
+error_win = QWidget()
+error_win.resize(500, 300)
+error_win.hide()
 
 class Question():
     def __init__(self, question, right_answer, wrong1, wrong2, wrong3):
@@ -91,9 +96,13 @@ layouth1 = QHBoxLayout()
 layouth2 = QHBoxLayout()
 layouth3 = QHBoxLayout()
 
+# Лэйауты статистики
 main_stats_layout = QHBoxLayout()
 stats_layout_V1 = QVBoxLayout()
 stats_layout_V2 = QVBoxLayout()
+
+#Лэйауты error окна
+main_error_layout = QVBoxLayout()
 
 question = QLabel('Какой национальности не существует?')
 button = QPushButton('Ответить')
@@ -107,6 +116,9 @@ user_quest_text = QLabel('Кол-во баллов')
 user_answer = QLabel('0')
 percent = QLabel('Процент')
 user_percent = QLabel('0')
+#Виджеты окна Error
+error_label = QLabel('Ошибка',alignment=Qt.AlignCenter)
+error_type = QLabel('Неверный ввод данных',alignment=Qt.AlignCenter)
 
 question_group = QGroupBox('Варианты ответов')
 answer1 = QRadioButton('Энцы')
@@ -172,36 +184,64 @@ main_stats_layout.addLayout(stats_layout_V1)
 main_stats_layout.addLayout(stats_layout_V2)
 statistic.setLayout(main_stats_layout)
 
+#Расположение виджетов на лаяуты error окна
+main_error_layout.addWidget(error_label)
+main_error_layout.addWidget(error_type)
+error_win.setLayout(main_error_layout)
 
-#!q1 = Question('Выбери перевод слова переменная','variable', 'variation', 'changing', 'variant')
-#!q2 = Question('Государственный язык бразилии','Португальский','Испанский','Английский','Немецкий')
-#!q3 = Question('Какая страна считается эталоном нейтралитета','Швейцария','Россия','Мексика','Япония')
-#!q4 = Question('Самый сложный язык програмированния','Malbolge','C++','Python','LISP')
+
+
 question_list = []
-#!question_list.append(q1)
-#!question_list.append(q2)
-#!question_list.append(q3)
-#!question_list.append(q4)
-#question_list.append(q5)
-#question_list.append(q6)
 
-excel_count = []
+
+excel_row_count = []
 question_count = excel['Вопросы'].count()
 right_answer_count = excel['Правильный ответ'].count()
 wrong1_count = excel['1 Неправильный ответ'].count()
 wrong2_count = excel['2 Неправильный ответ'].count()
 wrong3_count = excel['3 Неправильный ответ'].count()
-excel_count.append(question_count)
-excel_count.append(right_answer_count)
-excel_count.append(wrong2_count)
-excel_count.append(wrong2_count)
-excel_count.append(wrong3_count)
-excel_count.sort()
-if excel_count[0] != 0:
-    for i in range(excel_count[0]):
-        #name = df.at[i, 'Вопросы']
-        q = Question(str(excel.at[i, 'Вопросы']),str(excel.at[i, 'Правильный ответ']),str(excel.at[i, '1 Неправильный ответ']),str(excel.at[i, '2 Неправильный ответ']),str(excel.at[i, '3 Неправильный ответ']))
-        question_list.append(q)
+excel_row_count.append(question_count)
+excel_row_count.append(right_answer_count)
+excel_row_count.append(wrong2_count)
+excel_row_count.append(wrong2_count)
+excel_row_count.append(wrong3_count)
+excel_row_count.sort()
+i = 0
+if excel_row_count[0] != 0:
+    while i < excel_row_count[len(excel_row_count)-1]:
+    #for i in range(excel_row_count[0]):
+        if excel.iloc[i].count() == 5:
+            q = Question(
+                        str(excel.at[i, 'Вопросы']),
+                        str(excel.at[i, 'Правильный ответ']),
+                        str(excel.at[i, '1 Неправильный ответ']),
+                        str(excel.at[i, '2 Неправильный ответ']),
+                        str(excel.at[i, '3 Неправильный ответ'])
+                        )
+            question_list.append(q)
+        i += 1
+        if len(question_list) == 0:
+            q = Question(
+                        '',
+                        '',
+                        '',
+                        '',
+                        ''
+                        )
+            question_list.append(q)
+
+    
+
+else:
+    q = Question(
+                'Ошибка/nНеверно введены данные',
+                '',
+                '',
+                '',
+                ''
+                )
+    question_list.append(q)
+
 
 button.clicked.connect(start_test)
 main_win.score = 0
@@ -209,4 +249,10 @@ main_win.total = 0
 next_question()
 
 main_win.show()
+if question_list[0].wrong1 == '':
+    main_win.hide()
+    error_win.show()
+if excel_row_count[0] == 0:
+    main_win.hide()
+    error_win.show()
 app.exec_()
