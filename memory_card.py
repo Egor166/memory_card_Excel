@@ -5,8 +5,6 @@ import pandas as pd
 
 excel = pd.read_excel('memory_card.xlsx')
 
-error = False
-
 app = QApplication([])
 main_win = QWidget()
 main_win.setWindowTitle('memory card')
@@ -222,39 +220,17 @@ if excel_row_count[0] != 0:
                         )
             question_list.append(q)
         i += 1
-        if len(question_list) == 0:
-            error = True
-            q = Question(
-                        '',
-                        '',
-                        '',
-                        '',
-                        ''
-                        )
-            question_list.append(q)
-
-    
-
-else:
-    error = True
-    q = Question(
-                'Ошибка/nНеверно введены данные',
-                '',
-                '',
-                '',
-                ''
-                )
-    question_list.append(q)
 
 
-button.clicked.connect(start_test)
-main_win.score = 0
-main_win.total = 0
-next_question()
 
 
-main_win.show()
-if error:
+try:
+    button.clicked.connect(start_test)
+    main_win.score = 0
+    main_win.total = 0
+    next_question()
+    main_win.show()
+except:
     main_win.hide()
     error_win.show()
 
